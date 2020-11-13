@@ -25,7 +25,7 @@ import java.lang.instrument.Instrumentation;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 2.0
- * @see org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver
+ * //@see org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver
  */
 public final class InstrumentationSavingAgent {
 
