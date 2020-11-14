@@ -61,6 +61,7 @@ public class ScannedGenericBeanDefinition extends GenericBeanDefinition implemen
 		this.metadata = metadataReader.getAnnotationMetadata();
 		setBeanClassName(this.metadata.getClassName());
 		setResource(metadataReader.getResource());
+		System.out.print(String.format("\t\t\t\t\tnew %s(%s)\n", this.getClass().getSimpleName(), this.metadata.getClassName()));
 	}
 
 

@@ -170,7 +170,9 @@ class ConfigurationClassParser {
 	public void parse(Set<BeanDefinitionHolder> configCandidates) {
 		for (BeanDefinitionHolder holder : configCandidates) {
 			BeanDefinition bd = holder.getBeanDefinition();
+			// 不同类型的bd处理metadata的方式不一样
 			try {
+				// 自己加了注解的肯定就是AnnotationBeanDefinition
 				if (bd instanceof AnnotatedBeanDefinition) {
 					parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
 				}
@@ -269,9 +271,11 @@ class ConfigurationClassParser {
 
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
+			System.out.println("\t\t\t"+this.getClass().getSimpleName()+"将要处理配置类:" +configClass.getBeanName());
 			processMemberClasses(configClass, sourceClass, filter);
+			System.out.println("\t\t\t\t"+configClass.getBeanName()+"内部类处理完成");
 		}
-
+		// 自己的类size==0, 不进循环
 		// Process any @PropertySource annotations
 		for (AnnotationAttributes propertySource : AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), PropertySources.class,
@@ -351,8 +355,9 @@ class ConfigurationClassParser {
 	 */
 	private void processMemberClasses(ConfigurationClass configClass, SourceClass sourceClass,
 			Predicate<String> filter) throws IOException {
-
+		// 内部类
 		Collection<SourceClass> memberClasses = sourceClass.getMemberClasses();
+		System.out.println("\t\t\t\t"+configClass.getBeanName()+"内部类数量:"+memberClasses.size());
 		if (!memberClasses.isEmpty()) {
 			List<SourceClass> candidates = new ArrayList<>(memberClasses.size());
 			for (SourceClass memberClass : memberClasses) {
@@ -964,7 +969,7 @@ class ConfigurationClassParser {
 			}
 			return new ConfigurationClass((MetadataReader) this.source, importedBy);
 		}
-
+		// no idea
 		public Collection<SourceClass> getMemberClasses() throws IOException {
 			Object sourceToProcess = this.source;
 			if (sourceToProcess instanceof Class) {

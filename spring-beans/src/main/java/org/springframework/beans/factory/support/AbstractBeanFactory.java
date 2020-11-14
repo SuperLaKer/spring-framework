@@ -936,6 +936,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			this.hasDestructionAwareBeanPostProcessors = true;
 		}
 		// Add to end of list
+		System.out.println("\tAbstractBeanFactory(939)注册beanPostProcessor: "+beanPostProcessor);
 		this.beanPostProcessors.add(beanPostProcessor);
 	}
 

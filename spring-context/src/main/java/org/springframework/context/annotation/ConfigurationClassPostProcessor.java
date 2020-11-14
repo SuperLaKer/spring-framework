@@ -265,7 +265,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
 		String[] candidateNames = registry.getBeanDefinitionNames();
-
+		// 设置beanDefinition的xx属性有@Configuratoin注解设置属性为FULL, 有@Import, @ImportSource, @Component, @ComponentScan 属性设置为LITE
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
 			if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
@@ -277,7 +277,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
 		}
-
+		// 没有FULL或LITE的配置类
 		// Return immediately if no @Configuration classes were found
 		if (configCandidates.isEmpty()) {
 			return;
@@ -315,10 +315,12 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
+		parser.validate();
+		System.out.print("\t\t"+this.getClass().getSimpleName()+"直接注册的配置类:");
+		candidates.forEach((c)-> System.out.print(" "+c.getBeanName()));
+		System.out.println("");
 		do {
-			parser.parse(candidates);
-			parser.validate();
-
+			parser.parse(candidates);  // 加了那五个注解的类对应的bd，遍历bd所得
 			Set<ConfigurationClass> configClasses = new LinkedHashSet<>(parser.getConfigurationClasses());
 			configClasses.removeAll(alreadyParsed);
 

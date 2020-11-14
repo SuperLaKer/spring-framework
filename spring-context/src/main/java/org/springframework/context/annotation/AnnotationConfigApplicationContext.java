@@ -63,8 +63,16 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigApplicationContext() {
+		System.out.println("\tAnnotationConfigApplicationContext(){}||init begin");
+		// 无参构造默认调用父类的构造方法
+
+		// context中实例化一个reader，注册5个后置处理器，4个beanPostProcessor，1个beanDefinitionRegistryPostProcessor
+		// BDRPP扩展了BeanFactoryPostProcessor
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+
+		// 扫描器
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
+		System.out.println("\tAnnotationConfigApplicationContext(){}||init over\r\n");
 	}
 
 	/**
@@ -84,9 +92,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
-		this();
-		register(componentClasses);
-		refresh();
+		this();  // 五个postProcessor
+		System.out.println("\tAnnotationConfigApplicationContext(Class<?>... componentClasses){}||init begin");
+		register(componentClasses);  // 注册一个bd
+		refresh();  // 此方法将会解析bd
+		System.out.println("\tAnnotationConfigApplicationContext(Class<?>... componentClasses){}||init begin\r\n");
 	}
 
 	/**
