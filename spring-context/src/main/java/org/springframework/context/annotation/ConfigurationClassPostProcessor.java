@@ -233,6 +233,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		}
 		this.registriesPostProcessed.add(registryId);
 
+		/*this*/
 		processConfigBeanDefinitions(registry);
 	}
 
@@ -264,20 +265,23 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 */
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
+
+		/*目前的bd: 5个处理器(reader*4, prepareFactory*1) + 1个启动类*/
 		String[] candidateNames = registry.getBeanDefinitionNames();
-		// 设置beanDefinition的xx属性有@Configuratoin注解设置属性为FULL, 有@Import, @ImportSource, @Component, @ComponentScan 属性设置为LITE
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+			// 已经处理了
 			if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
+			// @Configuration -> full
+			// @Component, @ComponentScan, @Import, @ImportSource  -> lite
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
 		}
-		// 没有FULL或LITE的配置类
 		// Return immediately if no @Configuration classes were found
 		if (configCandidates.isEmpty()) {
 			return;
@@ -316,11 +320,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		parser.validate();
-		System.out.print("\t\t"+this.getClass().getSimpleName()+"注册:");
-		candidates.forEach((c)-> System.out.print(" "+c.getBeanName()));
-		System.out.println("");
 		do {
-			parser.parse(candidates);  // 加了那五个注解的类对应的bd，遍历bd所得
+			/*处理full和lite*/
+			parser.parse(candidates);
 			Set<ConfigurationClass> configClasses = new LinkedHashSet<>(parser.getConfigurationClasses());
 			configClasses.removeAll(alreadyParsed);
 

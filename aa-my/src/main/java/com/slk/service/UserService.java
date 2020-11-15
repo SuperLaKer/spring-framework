@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-	public void doSth(){
+	public void sayHi(){
 		System.out.println("userService#doSth...");
 	}
 }

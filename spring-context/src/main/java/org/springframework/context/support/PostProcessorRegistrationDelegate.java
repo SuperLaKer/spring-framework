@@ -52,18 +52,22 @@ final class PostProcessorRegistrationDelegate {
 	private PostProcessorRegistrationDelegate() {
 	}
 
-
+	/*list和map中的BFPP和BDRPP都进行了处理*/
+	/*处理顺序：map中的BDRPP(configurationClassPostProcessor), map和list中剩下的BDRPP, list中的BFPP, map中的BFPP*/
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
+		/*区分context->List<BeanFactoryPostProcessor>中的BFPP和BDRPP*/
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
 		Set<String> processedBeans = new HashSet<>();
 		// (GenericApplicationContext implements BeanDefinitionRegistry) always true
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
-			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();  // 一个方法
-			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();  // BDRPP implements BDPP，多出来一个方法
-			// 区分BDPP和BDRPP,毕竟BDRPP有一个特殊的方法
+
+			// BDRPP相对于BFPP多了一个方法
+			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
+			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
+			/*registryProcessors.add(BDRPP)*/
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
@@ -82,7 +86,7 @@ final class PostProcessorRegistrationDelegate {
 			// PriorityOrdered, Ordered, and the rest.
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
-			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			/*defaultListBeanFactory->bdMap中的BDRPP还没有处理*/
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
@@ -93,6 +97,7 @@ final class PostProcessorRegistrationDelegate {
 			}
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
 			registryProcessors.addAll(currentRegistryProcessors);
+			/*->->->->->->处理bdMap中的BDRPP： 类扫描，注册bd<-<-<-<-<-<-*/
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
 
@@ -105,6 +110,7 @@ final class PostProcessorRegistrationDelegate {
 				}
 			}
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
+			/*处理：list和map中的BDRPP*/
 			registryProcessors.addAll(currentRegistryProcessors);
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
@@ -129,6 +135,8 @@ final class PostProcessorRegistrationDelegate {
 
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+
+			/*处理list中的BFPP*/
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
 		}
 
@@ -139,6 +147,7 @@ final class PostProcessorRegistrationDelegate {
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let the bean factory post-processors apply to them!
+		/*处理map中的BFPP*/
 		String[] postProcessorNames =
 				beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
 
