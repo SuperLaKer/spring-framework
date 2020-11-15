@@ -273,16 +273,22 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
-			System.out.printf("\t\t\t\t%s开始扫描：%s%n", this.getClass().getSimpleName(), basePackage);
+
+			// 重要：利用ASM分析字节码，然后new bd
+			System.out.println("\t\t"+this.getClass().getSimpleName()+"扫描: "+basePackage);
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
-			System.out.printf("\t\t\t\t%s扫描完成：%s%n", this.getClass().getSimpleName(), basePackage);
+
 			for (BeanDefinition candidate : candidates) {
+				// 判断...
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
+
+				// 符合：给bd的属性设置默认值
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
+				// 符合：给bd的属性设置提供的值
 				if (candidate instanceof AnnotatedBeanDefinition) {
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
@@ -291,6 +297,8 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					// 注册bd
+					System.out.println("\t\t"+this.getClass().getSimpleName()+"注册bd: "+definitionHolder.getBeanName());
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
@@ -305,6 +313,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param beanName the generated bean name for the given bean
 	 */
 	protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
+		// 给bd属性设置默认值
 		beanDefinition.applyDefaults(this.beanDefinitionDefaults);
 		if (this.autowireCandidatePatterns != null) {
 			beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(this.autowireCandidatePatterns, beanName));

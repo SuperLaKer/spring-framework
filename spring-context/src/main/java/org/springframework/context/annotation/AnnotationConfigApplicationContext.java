@@ -63,7 +63,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigApplicationContext() {
-		System.out.println("\tAnnotationConfigApplicationContext(){}||init begin");
+		System.out.println("\tAnnotationConfigApplicationContext(){}||init begin**********");
 		// 无参构造默认调用父类的构造方法
 
 		// context中实例化一个reader，注册5个后置处理器，4个beanPostProcessor，1个beanDefinitionRegistryPostProcessor
@@ -72,7 +72,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 
 		// 扫描器
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
-		System.out.println("\tAnnotationConfigApplicationContext(){}||init over\r\n");
+		System.out.print("\tAnnotationConfigApplicationContext(){}||init over\r\n");
 	}
 
 	/**
@@ -93,10 +93,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
 		this();  // 五个postProcessor
-		System.out.println("\tAnnotationConfigApplicationContext(Class<?>... componentClasses){}||init begin");
+		System.out.println("\n\tAnnotationConfigApplicationContext(Class<?>... componentClasses){}||init begin**********");
 		register(componentClasses);  // 注册一个bd
 		refresh();  // 此方法将会解析bd
-		System.out.println("\tAnnotationConfigApplicationContext(Class<?>... componentClasses){}||init begin\r\n");
+		System.out.print("\n\tAnnotationConfigApplicationContext(Class<?>... componentClasses){}||init begin\n");
 	}
 
 	/**

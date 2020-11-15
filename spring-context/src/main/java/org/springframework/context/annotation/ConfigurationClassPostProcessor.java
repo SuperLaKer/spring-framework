@@ -316,7 +316,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		parser.validate();
-		System.out.print("\t\t"+this.getClass().getSimpleName()+"直接注册的配置类:");
+		System.out.print("\t\t"+this.getClass().getSimpleName()+"注册:");
 		candidates.forEach((c)-> System.out.print(" "+c.getBeanName()));
 		System.out.println("");
 		do {

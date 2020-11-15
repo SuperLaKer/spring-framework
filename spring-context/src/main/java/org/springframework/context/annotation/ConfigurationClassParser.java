@@ -228,7 +228,7 @@ class ConfigurationClassParser {
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
-
+		// 是否被其他类@Import
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
 			if (configClass.isImported()) {
@@ -247,12 +247,15 @@ class ConfigurationClassParser {
 		}
 
 		// Recursively process the configuration class and its superclass hierarchy.
+		// 类型转换
 		SourceClass sourceClass = asSourceClass(configClass, filter);
 		do {
+			// 干活的方法
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass, filter);
 		}
 		while (sourceClass != null);
 
+		//
 		this.configurationClasses.put(configClass, configClass);
 	}
 
@@ -271,11 +274,9 @@ class ConfigurationClassParser {
 
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
-			System.out.println("\t\t\t"+this.getClass().getSimpleName()+"将要处理配置类:" +configClass.getBeanName());
 			processMemberClasses(configClass, sourceClass, filter);
-			System.out.println("\t\t\t\t"+configClass.getBeanName()+"内部类处理完成");
 		}
-		// 自己的类size==0, 不进循环
+		// 处理@PropertySource
 		// Process any @PropertySource annotations
 		for (AnnotationAttributes propertySource : AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), PropertySources.class,
@@ -295,9 +296,12 @@ class ConfigurationClassParser {
 		if (!componentScans.isEmpty() &&
 				!this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
 			for (AnnotationAttributes componentScan : componentScans) {
-				// The config class is annotated with @ComponentScan -> perform the scan immediately
+
+				// 重要：类变bd
 				Set<BeanDefinitionHolder> scannedBeanDefinitions =
 						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
+
+
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
 				for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
 					BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
@@ -357,7 +361,6 @@ class ConfigurationClassParser {
 			Predicate<String> filter) throws IOException {
 		// 内部类
 		Collection<SourceClass> memberClasses = sourceClass.getMemberClasses();
-		System.out.println("\t\t\t\t"+configClass.getBeanName()+"内部类数量:"+memberClasses.size());
 		if (!memberClasses.isEmpty()) {
 			List<SourceClass> candidates = new ArrayList<>(memberClasses.size());
 			for (SourceClass memberClass : memberClasses) {

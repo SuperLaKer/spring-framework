@@ -75,18 +75,17 @@ class ComponentScanAnnotationParser {
 	// 解析component中的每一个包
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
 
-		// context的无产构造方法初始化了reader和scanner
+		// 使用自己new的scanner，并不是context无参构造初始化的
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
 
+		// beanName生成器
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
-
-		// beanName生成策略
 		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator :
 				BeanUtils.instantiateClass(generatorClass));
 
-		// 代理模型
+		// 代理模型web
 		ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy");
 		if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
 			scanner.setScopedProxyMode(scopedProxyMode);
@@ -96,9 +95,10 @@ class ComponentScanAnnotationParser {
 			scanner.setScopeMetadataResolver(BeanUtils.instantiateClass(resolverClass));
 		}
 
-		// 未知属性设置
+		// 属性设置 no idea
 		scanner.setResourcePattern(componentScan.getString("resourcePattern"));
-		// 可以在@Component中设置
+
+		// 可以在@Component中设置includeFilters和excludeFilters
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addIncludeFilter(typeFilter);
@@ -110,6 +110,8 @@ class ComponentScanAnnotationParser {
 			}
 		}
 
+		// @ComponentScan(value = "com.slk", lazyInit = true)
+		// component默认有11个属性，value仅仅是其中之一，还可以设置设置lazyInit、xxFilters等等
 		boolean lazyInit = componentScan.getBoolean("lazyInit");
 		if (lazyInit) {
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
@@ -135,6 +137,7 @@ class ComponentScanAnnotationParser {
 				return declaringClass.equals(className);
 			}
 		});
+		// 扫描包
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

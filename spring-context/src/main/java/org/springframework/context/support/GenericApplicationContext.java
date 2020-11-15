@@ -319,7 +319,6 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
-		System.out.println("\t\tGenericApplicationContext(322)||beanFactory.bdMap.put("+beanName+")");
 		this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
 	}
 
