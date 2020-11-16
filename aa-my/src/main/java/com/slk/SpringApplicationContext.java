@@ -2,6 +2,7 @@ package com.slk;
 
 import com.slk.doInterfaceInstance.UserDao;
 import com.slk.doInterfaceInstance.DaoImportRegistrar;
+import com.slk.selectors.UserServiceSelector;
 import com.slk.service.UserService;
 import com.slk.utils.StringUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -11,7 +12,8 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan(value = "com.slk")
-@Import(DaoImportRegistrar.class)
+//@Import(DaoImportRegistrar.class)
+@Import(UserServiceSelector.class)
 public class SpringApplicationContext {
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringApplicationContext.class);
@@ -19,10 +21,10 @@ public class SpringApplicationContext {
 
 		// 接口通过factoryBean完成了对象的创建
 		// 如何在取出对象的时候直接使用对象的名字？需要修改bd中的beanName
-		UserDao userDao = (UserDao) context.getBean(UserDao.class);
-		userDao.query("..");
+//		UserDao userDao = (UserDao) context.getBean(UserDao.class);
+//		userDao.query("..");
 
-		UserDao userDao1 = (UserDao) context.getBean("userDao");
-		userDao1.query("xxx");
+//		UserDao userDao1 = (UserDao) context.getBean("userDao");
+//		userDao1.query("xxx");
 	}
 }

@@ -316,6 +316,7 @@ class ConfigurationClassParser {
 		}
 
 		/*处理@Import注解，还在循环中，sourceClass: 配置类full(lite)*/
+		/*getImports(sourceClass)获取本配置类导入（Import）的所有类*/
 		processImports(configClass, sourceClass, getImports(sourceClass), filter, true);
 
 		// Process any @ImportResource annotations
@@ -524,9 +525,12 @@ class ConfigurationClassParser {
 	/**
 	 * Returns {@code @Import} class, considering all meta-annotations.
 	 */
+	/*source是full或lite，可能没有@Import注解*/
 	private Set<SourceClass> getImports(SourceClass sourceClass) throws IOException {
 		Set<SourceClass> imports = new LinkedHashSet<>();
 		Set<SourceClass> visited = new LinkedHashSet<>();
+		/*解析full(lite)类上的注解与注解上的注解*/
+		/*把@Import的value属性的值放到imports中*/
 		collectImports(sourceClass, imports, visited);
 		return imports;
 	}
@@ -547,6 +551,9 @@ class ConfigurationClassParser {
 	private void collectImports(SourceClass sourceClass, Set<SourceClass> imports, Set<SourceClass> visited)
 			throws IOException {
 
+		/*full(lite)类上面可能有@Import注解，也可能有其他注解*/
+		/*其他注解上面也可能有Import注解*/
+		/*总之就是获取full(lite类上面所有的@Import注解的值，放到imports中)*/
 		if (visited.add(sourceClass)) {
 			for (SourceClass annotation : sourceClass.getAnnotations()) {
 				String annName = annotation.getMetadata().getClassName();
@@ -558,6 +565,11 @@ class ConfigurationClassParser {
 		}
 	}
 
+	/**
+	 * Class or MetadataReader
+	 * SourceClass sourceClass = new SourceClass(full|lite);
+	 * SourceClass sourceClass = new SourceClass(this.metadataReaderFactory.getMetadataReader(className));
+	 */
 	private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass,
 			Collection<SourceClass> importCandidates, Predicate<String> exclusionFilter,
 			boolean checkForCircularImports) {
@@ -572,11 +584,14 @@ class ConfigurationClassParser {
 		else {
 			this.importStack.push(configClass);
 			try {
-				for (SourceClass candidate : importCandidates) {
-					/*@Import是ImportSelector*/
+				for (SourceClass candidate : importCandidates) {  // importCandidates: 所有通过@Import导入的类
+					/*@Import导入的是ImportSelector*/
+					/*同一个selector, 第一遍为true,第二遍为false*/
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
+
+						/**/
 						ImportSelector selector = ParserStrategyUtils.instantiateClass(candidateClass, ImportSelector.class,
 								this.environment, this.resourceLoader, this.registry);
 						Predicate<String> selectorFilter = selector.getExclusionFilter();
@@ -588,6 +603,8 @@ class ConfigurationClassParser {
 						}
 						else {
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
+							// new SourceClass(this.metadataReaderFactory.getMetadataReader(className))
+							// 再次循环，source不再是class而是MetadataReader
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames, exclusionFilter);
 							processImports(configClass, currentSourceClass, importSourceClasses, exclusionFilter, false);
 						}
@@ -695,6 +712,7 @@ class ConfigurationClassParser {
 		if (className == null || filter.test(className)) {
 			return this.objectSourceClass;
 		}
+		/*用不到*/
 		if (className.startsWith("java")) {
 			// Never use ASM for core java types
 			try {
@@ -704,6 +722,7 @@ class ConfigurationClassParser {
 				throw new NestedIOException("Failed to load class [" + className + "]", ex);
 			}
 		}
+		/*一直都是这个*/
 		return new SourceClass(this.metadataReaderFactory.getMetadataReader(className));
 	}
 
@@ -963,8 +982,12 @@ class ConfigurationClassParser {
 		}
 
 		public boolean isAssignable(Class<?> clazz) throws IOException {
+			/*第一遍：source == selector, class == ImportSelector*/
+			/*第二遍：source == MetadataReader, clazz是selector*/
+			System.out.println("this.source:"+this.source.getClass().getName());
+			System.out.println("clazz: "+clazz.getName());
 			if (this.source instanceof Class) {
-				return clazz.isAssignableFrom((Class<?>) this.source);
+				return clazz.isAssignableFrom((Class<?>) this.source);  // 父类.isAssignableFrom
 			}
 			return new AssignableTypeFilter(clazz).match((MetadataReader) this.source, metadataReaderFactory);
 		}
