@@ -207,6 +207,7 @@ class ConfigurationClassParser {
 	}
 
 	protected final void parse(AnnotationMetadata metadata, String beanName) throws IOException {
+		/*再循环full（lite）中*/
 		processConfigurationClass(new ConfigurationClass(metadata, beanName), DEFAULT_EXCLUSION_FILTER);
 	}
 
@@ -224,7 +225,7 @@ class ConfigurationClassParser {
 		return this.configurationClasses.keySet();
 	}
 
-	/*循环full和lite中, configClass相当于某个bd的元数据*/
+	/*循环full和lite中, configClass相当于某个bd*/
 	protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
@@ -250,7 +251,7 @@ class ConfigurationClassParser {
 		// Recursively process the configuration class and its superclass hierarchy.
 		SourceClass sourceClass = asSourceClass(configClass, filter);
 		do {
-			// 干活的方法
+			/*循环full(lite)中: 开始干活*/
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass, filter);
 		}
 		while (sourceClass != null);
@@ -267,7 +268,7 @@ class ConfigurationClassParser {
 	 * @return the superclass, or {@code null} if none found or previously processed
 	 */
 	@Nullable
-	/*还在循环full(lite), 参数configClass、source：理解为某个full（lite）的bd*/
+	/*循环full(lite)中, 参数configClass、source：理解为某个full（lite）的bd*/
 	protected final SourceClass doProcessConfigurationClass(
 			ConfigurationClass configClass, SourceClass sourceClass, Predicate<String> filter)
 			throws IOException {
@@ -316,10 +317,11 @@ class ConfigurationClassParser {
 		}
 
 		/*处理@Import注解，还在循环中，sourceClass: 配置类full(lite)*/
-		/*getImports(sourceClass): 获取所有@Import注解（类上的@Import和注解上的@Import）上的value*/
+		// getImports(sourceClass): 获取所有@Import注解（类上的@Import和注解上的@Import）上的value
 		Set<SourceClass> imports = getImports(sourceClass);
 		processImports(configClass, sourceClass, imports, filter, true);
 
+		/*处理@ImportResource*/
 		// Process any @ImportResource annotations
 		AnnotationAttributes importResource =
 				AnnotationConfigUtils.attributesFor(sourceClass.getMetadata(), ImportResource.class);
@@ -596,8 +598,7 @@ class ConfigurationClassParser {
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
-
-						/**/
+						/*实例化selector，将会调用方法获取字符串*/
 						ImportSelector selector = ParserStrategyUtils.instantiateClass(candidateClass, ImportSelector.class,
 								this.environment, this.resourceLoader, this.registry);
 						Predicate<String> selectorFilter = selector.getExclusionFilter();

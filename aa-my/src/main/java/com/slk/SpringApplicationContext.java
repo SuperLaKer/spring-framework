@@ -23,5 +23,6 @@ public class SpringApplicationContext {
 
 //		UserDao userDao1 = (UserDao) context.getBean("userDao");
 //		userDao1.query("xxx");
+		System.out.println("\n"+context.getBeanDefinitionNames().length);
 	}
 }

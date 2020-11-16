@@ -332,6 +332,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
+			ArrayList<String> objects = new ArrayList<>();
+			configClasses.forEach(c -> objects.add(c.getSimpleName()));
+			System.out.println("\n\tparse循环解析full(lite)得到的类: "+objects.toString());
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 
