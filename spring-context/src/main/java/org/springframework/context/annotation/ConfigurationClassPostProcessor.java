@@ -266,7 +266,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
 
-		/*目前的bd: 5个处理器(reader*4, prepareFactory*1) + 1个启动类*/
+		/*目前的bd共7个: 5个处理器(reader*4, prepareFactory*1) + SpringApplication + AppConfig*/
 		String[] candidateNames = registry.getBeanDefinitionNames();
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
@@ -277,8 +277,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 				}
 			}
 			// @Configuration -> full
-			// @Component, @ComponentScan, @Import, @ImportSource  -> lite
+			// @Component, @ComponentScan, @Import, @ImportSource  -> lite/*开始区分full和lite*/
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
+				/*2个满足 == SpringApplication + AppConfig*/
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
 		}
@@ -321,8 +322,28 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		parser.validate();
 		do {
-			/*处理full和lite*/
+			/*full and lite*/
+			/**
+			 * parse.parse()干了什么？
+			 *
+			 * 	1、处理 @Component
+			 * 	2、处理 @Import, 区分导入数据
+			 * 	3、处理 @ImportResource
+			 * 	4、处理 @Bean
+			 *
+			 *  Import注解导入数据的存储方式：
+			 *
+			 * 	parser.configurationClasses.put(configClass, configClass)  // 普通类和@ImportSelector返回的字符串
+			 * 	configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata())
+			 * 	configClass.addImportedResource(resolvedResource, readerClass);
+			 * 	configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
+			 */
+			// bd --转--> configClass，parser.map.put(configClass), configClass.map.put(registrar || resource ||beanMethod)
+			/*parser保存普通的类（configClass）， 普通类保存下面三种*/
 			parser.parse(candidates);
+			//System.out.println("\n\033[31;4m" + "full和lite全部解析完成" + "\033[0m");
+
+			/*解析导入的普通类*/
 			Set<ConfigurationClass> configClasses = new LinkedHashSet<>(parser.getConfigurationClasses());
 			configClasses.removeAll(alreadyParsed);
 
@@ -332,12 +353,11 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
-			ArrayList<String> objects = new ArrayList<>();
-			configClasses.forEach(c -> objects.add(c.getSimpleName()));
-			System.out.println("\n\tparse循环解析full(lite)得到的类: "+objects.toString());
+
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 
+			/**/
 			candidates.clear();
 			if (registry.getBeanDefinitionCount() > candidateNames.length) {
 				String[] newCandidateNames = registry.getBeanDefinitionNames();

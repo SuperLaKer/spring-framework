@@ -163,7 +163,6 @@ public abstract class AnnotationConfigUtils {
 
 		// 注册configurationClassPostProcessor，配置类的后置处理器
 		if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-			System.out.println("\t\tAnnotationConfigUtils注册: "+CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME);
 			RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);
 			def.setSource(source);
 			// 注册
@@ -171,7 +170,6 @@ public abstract class AnnotationConfigUtils {
 		}
 
 		if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-			System.out.println("\t\tAnnotationConfigUtils注册: "+AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME);
 			RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
@@ -179,7 +177,6 @@ public abstract class AnnotationConfigUtils {
 
 		// Check for JSR-250 support, and if present add the CommonAnnotationBeanPostProcessor.
 		if (jsr250Present && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-			System.out.println("\t\tAnnotationConfigUtils注册: "+COMMON_ANNOTATION_PROCESSOR_BEAN_NAME);
 			RootBeanDefinition def = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME));
@@ -201,14 +198,12 @@ public abstract class AnnotationConfigUtils {
 		}
 
 		if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
-			System.out.println("\t\tAnnotationConfigUtils注册: "+EVENT_LISTENER_PROCESSOR_BEAN_NAME);
 			RootBeanDefinition def = new RootBeanDefinition(EventListenerMethodProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME));
 		}
 
 		if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
-			System.out.println("\t\tAnnotationConfigUtils注册: "+EVENT_LISTENER_FACTORY_BEAN_NAME);
 			RootBeanDefinition def = new RootBeanDefinition(DefaultEventListenerFactory.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_FACTORY_BEAN_NAME));

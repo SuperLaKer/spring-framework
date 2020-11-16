@@ -120,11 +120,12 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
-		// 自己写的类是不是加了@Configutation注解, 是 设置属性为 FULL
+		/*标记为FULL*/
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);  // 给这个属性复制
-		} // @Import, @ImportSource, @Component, @ComponentScan 设置属性为LITE
+		}
+		/*编辑为LITE*/
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}

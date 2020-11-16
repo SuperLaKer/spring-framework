@@ -967,12 +967,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			this.beanDefinitionMap.put(beanName, beanDefinition);
+			System.out.println("\t\tDefaultListableBeanFactory(969)添加bd: "+beanName);
 		}
 		else {
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
 					this.beanDefinitionMap.put(beanName, beanDefinition);
+					System.out.println("\t\tDefaultListableBeanFactory(977)添加bd: "+beanName);
 					List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
 					updatedDefinitions.addAll(this.beanDefinitionNames);
 					updatedDefinitions.add(beanName);
@@ -983,6 +985,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			else {
 				// Still in startup registration phase
 				this.beanDefinitionMap.put(beanName, beanDefinition);
+				System.out.println("\t\tDefaultListableBeanFactory(988)添加bd: "+beanName);
 				this.beanDefinitionNames.add(beanName);
 				removeManualSingletonName(beanName);
 			}

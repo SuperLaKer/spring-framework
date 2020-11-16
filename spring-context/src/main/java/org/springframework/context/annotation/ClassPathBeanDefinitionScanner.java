@@ -298,7 +298,6 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
 					// 注册bd
-					System.out.println("\t\t"+this.getClass().getSimpleName()+"注册bd: "+definitionHolder.getBeanName());
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
