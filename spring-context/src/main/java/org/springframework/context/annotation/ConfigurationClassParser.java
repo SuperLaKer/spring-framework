@@ -316,8 +316,9 @@ class ConfigurationClassParser {
 		}
 
 		/*处理@Import注解，还在循环中，sourceClass: 配置类full(lite)*/
-		/*getImports(sourceClass)获取本配置类导入（Import）的所有类*/
-		processImports(configClass, sourceClass, getImports(sourceClass), filter, true);
+		/*getImports(sourceClass): 获取所有@Import注解（类上的@Import和注解上的@Import）上的value*/
+		Set<SourceClass> imports = getImports(sourceClass);
+		processImports(configClass, sourceClass, imports, filter, true);
 
 		// Process any @ImportResource annotations
 		AnnotationAttributes importResource =
@@ -573,6 +574,12 @@ class ConfigurationClassParser {
 	private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass,
 			Collection<SourceClass> importCandidates, Predicate<String> exclusionFilter,
 			boolean checkForCircularImports) {
+
+		/*第二次递归调用：c是return的字符串*/
+		importCandidates.forEach(c -> {
+			System.out.print("\n\t\tprocessImports第三个参数: "+ c +"|| 参数.source: "+c.source);
+		});
+
 		/*import的value*/
 		if (importCandidates.isEmpty()) {
 			return;
@@ -584,9 +591,8 @@ class ConfigurationClassParser {
 		else {
 			this.importStack.push(configClass);
 			try {
-				for (SourceClass candidate : importCandidates) {  // importCandidates: 所有通过@Import导入的类
+				for (SourceClass candidate : importCandidates) {
 					/*@Import导入的是ImportSelector*/
-					/*同一个selector, 第一遍为true,第二遍为false*/
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
@@ -604,7 +610,6 @@ class ConfigurationClassParser {
 						else {
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							// new SourceClass(this.metadataReaderFactory.getMetadataReader(className))
-							// 再次循环，source不再是class而是MetadataReader
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames, exclusionFilter);
 							processImports(configClass, currentSourceClass, importSourceClasses, exclusionFilter, false);
 						}
@@ -619,7 +624,7 @@ class ConfigurationClassParser {
 										this.environment, this.resourceLoader, this.registry);
 						configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
 					}
-					/*@Import是ImportSelector*/
+					/*@Import是普通类*/
 					else {
 						// Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
 						// process it as an @Configuration class
@@ -982,12 +987,8 @@ class ConfigurationClassParser {
 		}
 
 		public boolean isAssignable(Class<?> clazz) throws IOException {
-			/*第一遍：source == selector, class == ImportSelector*/
-			/*第二遍：source == MetadataReader, clazz是selector*/
-			System.out.println("this.source:"+this.source.getClass().getName());
-			System.out.println("clazz: "+clazz.getName());
 			if (this.source instanceof Class) {
-				return clazz.isAssignableFrom((Class<?>) this.source);  // 父类.isAssignableFrom
+				return clazz.isAssignableFrom((Class<?>) this.source);
 			}
 			return new AssignableTypeFilter(clazz).match((MetadataReader) this.source, metadataReaderFactory);
 		}

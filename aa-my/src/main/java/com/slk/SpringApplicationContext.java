@@ -1,10 +1,7 @@
 package com.slk;
 
-import com.slk.doInterfaceInstance.UserDao;
-import com.slk.doInterfaceInstance.DaoImportRegistrar;
-import com.slk.selectors.UserServiceSelector;
+import com.slk.selectors.USelector;
 import com.slk.service.UserService;
-import com.slk.utils.StringUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +10,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ComponentScan(value = "com.slk")
 //@Import(DaoImportRegistrar.class)
-@Import(UserServiceSelector.class)
+@Import(USelector.class)
 public class SpringApplicationContext {
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringApplicationContext.class);
