@@ -2,7 +2,7 @@ buildscript {
 	// 这里新增，下面还有一个repositories需要扩展
 	repositories {
 		maven { url "https://maven.aliyun.com/repository/spring-plugin" }
-		maven { url "https://repo.spring.io/plugins-release" }
+		//maven { url "https://repo.spring.io/plugins-release" }
 	}
 }
 plugins {
@@ -345,13 +345,13 @@ configure([rootProject] + javaProjects) { project ->
 		}
 	}
 
-	test {
-		useJUnitPlatform()
-		include(["**/*Tests.class", "**/*Test.class"])
-		systemProperty("java.awt.headless", "true")
-		systemProperty("testGroups", project.properties.get("testGroups"))
-		systemProperty("io.netty.leakDetection.level", "paranoid")
-	}
+//	test {
+//		useJUnitPlatform()
+//		include(["**/*Tests.class", "**/*Test.class"])
+//		systemProperty("java.awt.headless", "true")
+//		systemProperty("testGroups", project.properties.get("testGroups"))
+//		systemProperty("io.netty.leakDetection.level", "paranoid")
+//	}
 
 	checkstyle {
 		toolVersion = "8.36.2"

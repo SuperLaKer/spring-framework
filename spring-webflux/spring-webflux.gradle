@@ -58,6 +58,6 @@ dependencies {
 	testRuntime("com.sun.activation:javax.activation")
 }
 
-test {
-	maxParallelForks = 4
-}
+//test {
+//	maxParallelForks = 4
+//}
