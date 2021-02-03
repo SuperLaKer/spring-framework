@@ -1,3 +1,10 @@
+buildscript {
+	// 这里新增，下面还有一个repositories需要扩展
+	repositories {
+		maven { url "https://maven.aliyun.com/repository/spring-plugin" }
+		maven { url "https://repo.spring.io/plugins-release" }
+	}
+}
 plugins {
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE' apply false
 	id 'io.spring.nohttp' version '0.0.5.RELEASE'
@@ -289,8 +296,16 @@ configure(allprojects) { project ->
 			cacheChangingModulesFor 0, "seconds"
 		}
 		repositories {
-			mavenCentral()
+			// 添加阿里center和public
+			maven { url "https://maven.aliyun.com/repository/central" }
+			maven { url "https://maven.aliyun.com/repository/public" }
 			maven { url "https://repo.spring.io/libs-spring-framework-build" }
+			mavenCentral()  // 源码
+			// 添加spring插件
+			maven { url "https://maven.aliyun.com/repository/spring-plugin" }
+			maven { url "http://repo.spring.io/plugins-release/" }
+
+			maven { url "https://repo.spring.io/libs-spring-framework-build" }  // 源码
 		}
 	}
 	configurations.all {
